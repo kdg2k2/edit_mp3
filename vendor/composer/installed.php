@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'laravel/laravel',
-        'pretty_version' => 'v5.8.35',
-        'version' => '5.8.35.0',
-        'reference' => NULL,
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => '95d643029b719cd205a533374d3af021b5c44076',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -328,6 +328,15 @@
                 0 => '*',
             ),
         ),
+        'james-heinrich/getid3' => array(
+            'pretty_version' => 'v1.9.23',
+            'version' => '1.9.23.0',
+            'reference' => '06c7482532ff2b3f9111b011d880ca6699c8542b',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../james-heinrich/getid3',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'kodova/hamcrest-php' => array(
             'dev_requirement' => true,
             'replaced' => array(
@@ -344,9 +353,9 @@
             'dev_requirement' => false,
         ),
         'laravel/laravel' => array(
-            'pretty_version' => 'v5.8.35',
-            'version' => '5.8.35.0',
-            'reference' => NULL,
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '95d643029b719cd205a533374d3af021b5c44076',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -637,8 +646,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0|2.0',
-                1 => '1.0.0',
+                0 => '1.0.0',
+                1 => '1.0|2.0',
             ),
         ),
         'psr/simple-cache' => array(
