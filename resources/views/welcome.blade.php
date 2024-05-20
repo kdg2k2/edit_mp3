@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Laravel</title>
     <link rel="stylesheet" href="/css/app.css">
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
 </head>
 
@@ -117,7 +117,8 @@
                     // Đọc metadata từ file MP3
                     jsmediatags.read(file, {
                         onSuccess: function (tag) {
-                            displayMetadata(tag);
+                            console.log(tag);
+                            // displayMetadata(tag);
                         },
                         onError: function (error) {
                             console.log(':(', error.type, error.info);
