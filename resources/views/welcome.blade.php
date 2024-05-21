@@ -31,14 +31,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 
     <script>
-        $(document).ready(function () {
+        $(document).ready(() => {
             var wavesurfer = null;
-            $('#fileInput').on('change', function () {
+            $('#fileInput').on('change', (e) => {
                 if (wavesurfer !== null) {
                     wavesurfer.destroy();
                 }
                 $('#audio').html('');
-                const file = this.files[0];
+                const file = e.target.files[0];
                 if (file) {
                     $('#audio').append(`
                         <h3 class="mt-4">Display</h3>
@@ -77,13 +77,13 @@
 
                     // đọc file và hiển thị wave
                     const reader = new FileReader();
-                    reader.onload = function (event) {
+                    reader.onload = (event) => {
                         wavesurfer.load(event.target.result);
                     };
                     reader.readAsDataURL(file);
 
                     // hiển thị thời lượng của file
-                    wavesurfer.on('ready', function () {
+                    wavesurfer.on('ready', () => {
                         let duration = wavesurfer.getDuration();
                         let minutes = Math.floor(duration / 60);
                         let seconds = Math.floor(duration % 60);
@@ -91,12 +91,12 @@
                     });
 
                     // click chạy audio
-                    $('#play').on('click', function () {
+                    $('#play').on('click', () => {
                         wavesurfer.playPause();
                     });
 
                     // hiển thị thời gian chạy
-                    wavesurfer.on('audioprocess', function () {
+                    wavesurfer.on('audioprocess', () => {
                         let currentTime = wavesurfer.getCurrentTime();
                         let minutes = Math.floor(currentTime / 60);
                         let seconds = Math.floor(currentTime % 60);
@@ -105,7 +105,7 @@
 
                     // zoom audio
                     var last_zoom = 1;
-                    $('#zoom-slider').on('input', function () {
+                    $('#zoom-slider').on('input', () => {
                         if ($(this).val() > last_zoom) {
                             wavesurfer.zoom(Number($(this).val()) * 10);
                         } else {
@@ -116,25 +116,96 @@
 
                     // Đọc metadata từ file MP3
                     jsmediatags.read(file, {
-                        onSuccess: function (tag) {
-                            console.log(tag);
-                            // displayMetadata(tag);
+                        onSuccess: (tag) => {
+                            displayMetadata(tag);
                         },
-                        onError: function (error) {
+                        onError: (error) => {
                             console.log(':(', error.type, error.info);
                         }
                     });
 
                     // chuyển đổi định dạng
-                    $('#convert').on('click', function () {
+                    $('#convert').on('click', () => {
                         let sourceAudioFile = file;
                         let targetAudioFormat = $('#type_format').val();
-                        
                     });
                 }
             });
         });
 
+        displayMetadata = (tag) => {
+            $('#audio').append(`
+                <h3 class="mt-4">MetaData</h3>
+                <div class="row">
+                    <div class="col-lg-6 col-md-12">
+                        <div class="form-group">
+                            <label for="">album</label>
+                            <input type="text" class="form-control" id="album" name="album">
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12">
+                        <div class="form-group">
+                            <label for="">artist</label>
+                            <input type="text" class="form-control" id="artist" name="artist">
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12">
+                        <div class="form-group">
+                            <label for="">genre</label>
+                            <input type="text" class="form-control" id="genre" name="genre">
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12">
+                        <div class="form-group">
+                            <label for="">title</label>
+                            <input type="text" class="form-control" id="title" name="title">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="">image</label>
+                            <input type="file" accept=".png, .jpg, .jpeg" class="form-control" id="image" name="image">
+                            <div class="mt-1" style="display: flex; justify-content: center;">
+                                <img src="" id="picture" style="height:200px; width:200px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-right">
+                            <button class="btn btn-sm btn-outline-info">Lưu Metadata</button>
+                        </div>
+                    </div>
+                </div>
+            `);
+            $('#album').val(tag.tags.album);
+            $('#artist').val(tag.tags.artist);
+            $('#genre').val(tag.tags.genre);
+            $('#title').val(tag.tags.title);
+            const base64String = arrayBufferToBase64(tag.tags.picture.data);
+            const imageUrl = `data:${picture.format};base64,${base64String}`;
+            $('#picture').attr('src', imageUrl);
+
+            $('#image').on('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        $('#picture').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        arrayBufferToBase64 = (buffer) => {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
     </script>
 </body>
 

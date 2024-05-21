@@ -12,11 +12,14 @@ class HomeController extends Controller
     public function postInput(Request $request)
     {
         // Xóa folder tạo ra từ lần trc
-        File::deleteDirectory(storage_path('app/temp'));
+        File::deleteDirectory(public_path('uploads'));
 
         // lưu file mp3
-        $file_path = $request->file('fileInput')->storeAs('temp', 'Edit_' . $request->file('fileInput')->getClientOriginalName());
-        $full_file_path = storage_path('app/' . $file_path);
+        if(!is_dir(public_path('uploads'))){
+            mkdir(public_path('uploads'), 0777, true);
+        }
+        $file_path = $request->file('fileInput')->move('uploads', 'Edit_' . $request->file('fileInput')->getClientOriginalName());
+        $full_file_path = public_path($file_path);
 
         // khởi tạo trình đọc ghi metadata
         $TextEncoding = 'UTF-8';
@@ -40,8 +43,8 @@ class HomeController extends Controller
 
         // riêng ảnh ktra có truyền trong request thì thay ảnh
         if ($request->file('image')) {
-            $img_path = $request->file('image')->storeAs('temp', 'Edit_' . $request->file('image')->getClientOriginalName());
-            $full_img_path = storage_path('app/' . $img_path);
+            $img_path = $request->file('image')->move('uploads', 'Edit_' . $request->file('image')->getClientOriginalName());
+            $full_img_path = public_path($img_path);
             if ($APICdata = file_get_contents($full_img_path)) {
                 if ($exif_imagetype = exif_imagetype($full_img_path)) {
                     $TagData['attached_picture'][0]['data']          = $APICdata;
