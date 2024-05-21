@@ -72,6 +72,7 @@ class HomeController extends Controller
         $name = 'Convert_'.$request->file('fileInput')->getClientOriginalName();
         $request->file('fileInput')->move('lamp', 'convert.mp3');
         $cmd = 'cd ' . public_path('lamp') . ' && lamp.exe convert.mp3 converted.' . $request->type_format;
+        dd($cmd);
         // $shell = shell_exec($cmd);
         // if($shell){
         //     dd(1);
