@@ -13,7 +13,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-3 col-md-1 col-sm-1"></div>
-            <form method="post" action="/input" class="card py-3 my-5 col-lg-6 col-md-10" enctype="multipart/form-data">
+            <form method="post" id="post_form" class="card py-3 my-5 col-lg-6 col-md-10" enctype="multipart/form-data">
                 @csrf
                 <input type="file" accept=".mp3" class="form-control" id="fileInput" name="fileInput" accept=".mp3">
                 <div id="audio">
@@ -54,9 +54,13 @@
                         <h3 class="mt-4">Convert</h3>
                         <div class="row mt-3">
                             <div class="col-6">
-                                <select id="type_format" class="form-control">
+                                <select name="type_format" class="form-control">
                                     <option value="wav">wav</option>
                                     <option value="aac">aac</option>
+                                    <option value="flac">flac</option>
+                                    <option value="alac">alac</option>
+                                    <option value="ogg">ogg</option>
+                                    <option value="wma">wma</option>
                                 </select>    
                             </div>
                             <div class="col-6"><button type="button" id="convert" class="btn btn-success btn-sm">Convert</button></div>
@@ -126,8 +130,7 @@
 
                     // chuyển đổi định dạng
                     $('#convert').on('click', () => {
-                        let sourceAudioFile = file;
-                        let targetAudioFormat = $('#type_format').val();
+                        $('#post_form').attr('action', '/convert').submit();
                     });
                 }
             });
@@ -172,7 +175,7 @@
                     </div>
                     <div class="col-12">
                         <div class="text-right">
-                            <button class="btn btn-sm btn-outline-info">Lưu Metadata</button>
+                            <button class="btn btn-sm btn-outline-info" type="button" id="save_mtdt">Lưu Metadata</button>
                         </div>
                     </div>
                 </div>
@@ -195,6 +198,10 @@
                     reader.readAsDataURL(file);
                 }
             });
+
+            $('#save_mtdt').on('click', ()=>{
+                $('#post_form').attr('action', '/input').submit();
+            })
         }
 
         arrayBufferToBase64 = (buffer) => {

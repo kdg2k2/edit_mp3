@@ -52,7 +52,7 @@ class HomeController extends Controller
                     $TagData['attached_picture'][0]['description']   = 'Cover Art';
                     $TagData['attached_picture'][0]['mime']          = image_type_to_mime_type($exif_imagetype);
                 } else {
-                    dd('invalid image format (only GIF, JPEG, PNG)');
+                    dd('invalid image format (only JPG, JPEG, PNG)');
                 }
             } else {
                 dd('cannot open '.htmlentities($_FILES['userfile']['tmp_name']));
@@ -66,5 +66,17 @@ class HomeController extends Controller
         } else {
             dd('Failed to write tags!');
         }
+    }
+
+    public function postConvert(Request $request){
+        $name = 'Convert_'.$request->file('fileInput')->getClientOriginalName();
+        $request->file('fileInput')->move('lamp', 'convert.mp3');
+        $cmd = 'cd ' . public_path('lamp') . ' && lamp.exe convert.mp3 converted.' . $request->type_format;
+        // $shell = shell_exec($cmd);
+        // if($shell){
+        //     dd(1);
+        // }else{
+        //     dd('Có lỗi xảy ra khi convert');
+        // }
     }
 }

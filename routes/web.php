@@ -18,3 +18,4 @@ Route::get('/', function () {
 });
 
 Route::post('/input', 'HomeController@postInput');
+Route::post('/convert', 'HomeController@postConvert');
