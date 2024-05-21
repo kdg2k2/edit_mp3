@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use getID3;
 use getid3_writetags;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class HomeController extends Controller
         File::deleteDirectory(public_path('uploads'));
 
         // lưu file mp3
-        if(!is_dir(public_path('uploads'))){
+        if (!is_dir(public_path('uploads'))) {
             mkdir(public_path('uploads'), 0777, true);
         }
         $file_path = $request->file('fileInput')->move('uploads', 'Edit_' . $request->file('fileInput')->getClientOriginalName());
@@ -55,10 +56,10 @@ class HomeController extends Controller
                     dd('invalid image format (only JPG, JPEG, PNG)');
                 }
             } else {
-                dd('cannot open '.htmlentities($_FILES['userfile']['tmp_name']));
+                dd('cannot open ' . htmlentities($_FILES['userfile']['tmp_name']));
             }
         }
-        
+
         // lưu
         $tagwriter->tag_data = $TagData;
         if ($tagwriter->WriteTags()) {
@@ -68,16 +69,28 @@ class HomeController extends Controller
         }
     }
 
-    public function postConvert(Request $request){
-        $name = 'Convert_'.$request->file('fileInput')->getClientOriginalName();
-        $request->file('fileInput')->move('lamp', 'convert.mp3');
-        $cmd = 'cd ' . public_path('lamp') . ' && lamp.exe convert.mp3 converted.' . $request->type_format;
-        dd($cmd);
-        // $shell = shell_exec($cmd);
-        // if($shell){
-        //     dd(1);
-        // }else{
-        //     dd('Có lỗi xảy ra khi convert');
-        // }
+    public function postConvert(Request $request)
+    {
+        // Xóa folder tạo ra từ lần trc
+        File::deleteDirectory(public_path('uploads'));
+
+        $name = 'Convert_' . pathinfo($request->file('fileInput')->getClientOriginalName(), PATHINFO_FILENAME).'.'.$request->type_format;
+        $request->file('fileInput')->move('lame', 'convert.mp3');
+        $cmd = 'cd ' . public_path('lame') . ' & ' . public_path('lame/lame.exe') . ' convert.mp3 converted.' . $request->type_format;
+        exec($cmd, $output, $return_var);
+
+        // Kiểm tra kết quả trả về từ lệnh
+        if ($return_var === 0) {
+            if (!is_dir(public_path('uploads'))) {
+                mkdir(public_path('uploads'), 0777, true);
+            }
+            rename(public_path('lame/converted.' . $request->type_format), public_path('uploads/'.$name));
+            unlink(public_path('lame/convert.mp3'));
+
+            return response()->download(public_path('uploads/'.$name));
+        } else {
+            // Lệnh không thực thi thành công
+            dd('Có lỗi xảy ra khi thực thi lệnh');
+        }
     }
 }
