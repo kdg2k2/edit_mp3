@@ -19,3 +19,4 @@ Route::get('/', function () {
 
 Route::post('/input', 'HomeController@postInput');
 Route::post('/convert', 'HomeController@postConvert');
+Route::post('/extract/{start}/{end}', 'HomeController@postExtract');

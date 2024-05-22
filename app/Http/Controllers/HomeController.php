@@ -76,7 +76,7 @@ class HomeController extends Controller
 
         $name = 'Convert_' . pathinfo($request->file('fileInput')->getClientOriginalName(), PATHINFO_FILENAME).'.'.$request->type_format;
         $request->file('fileInput')->move('lame', 'convert.mp3');
-        $cmd = 'cd ' . public_path('lame') . ' & ' . public_path('lame/lame.exe') . ' convert.mp3 converted.' . $request->type_format;
+        $cmd = 'cd ' . public_path('lame') . ' & lame.exe -V2 convert.mp3 converted.' . $request->type_format;
         exec($cmd, $output, $return_var);
 
         // Kiểm tra kết quả trả về từ lệnh
@@ -90,7 +90,45 @@ class HomeController extends Controller
             return response()->download(public_path('uploads/'.$name));
         } else {
             // Lệnh không thực thi thành công
-            dd('Có lỗi xảy ra khi thực thi lệnh');
+            dd('Lỗi chuyển đổi định dạng');
+        }
+    }
+
+    public function postExtract($start, $end, Request $request){
+        File::deleteDirectory(public_path('uploads'));
+
+        $name = 'Extract_' . $request->file('fileInput')->getClientOriginalName();
+        $request->file('fileInput')->move('lame', 'convert.mp3');
+        $cmd = 'cd ' . public_path('lame') . ' & lame.exe -V2 convert.mp3 --decode';
+        exec($cmd, $output, $return_var);
+        if ($return_var === 0) {
+            if (!is_dir(public_path('uploads'))) {
+                mkdir(public_path('uploads'), 0777, true);
+            }
+            rename(public_path('lame/convert.wav'), public_path('sox/convert.wav'));
+
+            $cmd = 'cd ' . public_path('sox') . " & sox.exe -t wav convert.wav extracted.wav trim $start $end";
+            exec($cmd, $output, $return_var);
+            if ($return_var === 0){
+                rename(public_path('sox/extracted.wav'), public_path('lame/extracted.wav'));
+
+                $cmd = 'cd ' . public_path('lame') . ' & lame.exe -V2 extracted.wav converted.mp3';
+                exec($cmd, $output, $return_var);
+                if ($return_var === 0){
+                    rename(public_path('lame/converted.mp3'), public_path('uploads/'.$name));
+
+                    unlink(public_path('lame/convert.mp3'));
+                    unlink(public_path('lame/extracted.wav'));
+                    unlink(public_path('sox/convert.wav'));
+                    return response()->download(public_path('uploads/'.$name));
+                }else{
+                    dd('Lỗi trích xuất 2');
+                }
+            } else {
+                dd('Lỗi trích xuất 1');
+            }
+        } else {
+            dd('Lỗi chuyển đổi định dạng');
         }
     }
 }

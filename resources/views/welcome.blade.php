@@ -17,7 +17,7 @@
                 @csrf
                 <input type="file" accept=".mp3" class="form-control" id="fileInput" name="fileInput" accept=".mp3">
                 <div id="audio">
-
+                    
                 </div>
             </form>
             <div class="col-lg-3 col-md-1 col-sm-1"></div>
@@ -51,19 +51,41 @@
                             <div class="col-4"><div id="duration" class="mt-2 text-right">Total Duration: 00:00</div></div>
                         </div>
 
+                        <h3 class="mt-4">Extract Part</h3>
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label for="start_time">Start time</label>
+                                    <input type="text" class="form-control time_input" id="start_time" pattern="^([0-5][0-9]):([0-5][0-9])$" placeholder="mm:ss">
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <label for="end_time">End time</label>
+                                <input type="text" class="form-control time_input" id="end_time" pattern="^([0-5][0-9]):([0-5][0-9])$" placeholder="mm:ss">
+                                <span class="text-danger"></span>
+                            </div>
+                            <div class="col-4 d-flex align-items-center">
+                                <button type="button" class="btn btn-warning btn-sm" id="extract">Extract Part</button>
+                            </div>
+                        </div>
+
                         <h3 class="mt-4">Convert</h3>
                         <div class="row mt-3">
                             <div class="col-6">
-                                <select name="type_format" class="form-control">
-                                    <option value="wav">wav</option>
-                                    <option value="aac">aac</option>
-                                    <option value="flac">flac</option>
-                                    <option value="alac">alac</option>
-                                    <option value="ogg">ogg</option>
-                                    <option value="wma">wma</option>
-                                </select>    
+                                <div class="form-group">
+                                    <label>Target format</label>
+                                    <select name="type_format" class="form-control">
+                                        <option value="wav">wav</option>
+                                        <option value="aac">aac</option>
+                                        <option value="flac">flac</option>
+                                        <option value="alac">alac</option>
+                                        <option value="ogg">ogg</option>
+                                        <option value="wma">wma</option>
+                                    </select> 
+                                </div>
                             </div>
-                            <div class="col-6"><button type="button" id="convert" class="btn btn-success btn-sm">Convert</button></div>
+                            <div class="col-6 d-flex align-items-center"><button type="button" id="convert" class="btn btn-success btn-sm">Convert</button></div>
                         </div>
                     `);
 
@@ -131,6 +153,36 @@
                     // chuyển đổi định dạng
                     $('#convert').on('click', () => {
                         $('#post_form').attr('action', '/convert').submit();
+                    });
+
+                    // check dữ liệu nhập thời gian
+                    $('.time_input').on('input', function() {
+                        let value = $(this).val();
+                        if (!/^([0-5][0-9]):([0-5][0-9])$/.test(value)) {
+                            $(this).closest('.col-4').find('span').html('Vui lòng nhập đúng định dạng mm:ss');
+                        }else{
+                            $(this).closest('.col-4').find('span').html('');
+                        }
+                    })
+
+                    // trích đoạn audio
+                    $('#extract').on('click', () => {
+                        var start_time = $('#start_time').val();
+                        var end_time = $('#end_time').val();
+                        if(!start_time || !end_time){
+                            alert('Vui lòng nhập khoảng thời gian để thực hiện trích xuất');
+                        }else{
+                            let total_start = (parseInt((start_time.split(':'))[0], 10) * 60) + parseInt((start_time.split(':'))[1], 10);
+                            let total_end = (parseInt((end_time.split(':'))[0], 10) * 60) + parseInt((end_time.split(':'))[1], 10);
+                            var max_time = wavesurfer.getDuration();
+                            if(total_end > max_time){
+                                alert('Không hợp lệ - Tổng thời gian trích xuất đã lớn hơn thời lượng file!');
+                            }else if(total_start > total_end){
+                                alert('Không hợp lệ - Thời gian bắt đầu trích xuất không thể lớn hơn thời gian kết thúc trích xuất!');
+                            }else{
+                                $('#post_form').attr('action', `/extract/${total_start}/${(total_end-total_start)}`).submit();
+                            }
+                        }
                     });
                 }
             });
