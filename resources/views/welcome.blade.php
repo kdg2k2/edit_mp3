@@ -131,7 +131,7 @@
 
                     // zoom audio
                     var last_zoom = 1;
-                    $('#zoom-slider').on('input', () => {
+                    $('#zoom-slider').on('input', function() {
                         if ($(this).val() > last_zoom) {
                             wavesurfer.zoom(Number($(this).val()) * 10);
                         } else {
